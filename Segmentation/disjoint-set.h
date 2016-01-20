@@ -1,7 +1,7 @@
 #ifndef DISJOINT_SET
 #define DISJOINT_SET
 
-// disjoint-set forests using union-by-rank and path compression (sort of).
+// disjoint-set forests using union-by-rank and path compression.
 
 typedef struct {
   int rank;
@@ -37,12 +37,11 @@ universe::~universe() {
   delete [] elts;
 }
 
-int universe::find(int x) {
-  int y = x;
-  while (y != elts[y].p)
-    y = elts[y].p;
-  elts[x].p = y;
-  return y;
+int universe::find(int x){
+  if(x == elts[x].p)
+    return x;
+  elts[x].p = this->find(elts[x].p);
+  return elts[x].p;
 }
 
 void universe::join(int x, int y) {

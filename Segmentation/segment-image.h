@@ -38,7 +38,7 @@ static inline float diff(image<float> *r, image<float> *g, image<float> *b,
  * min_size: minimum component size (enforced by post-processing stage).
  * num_ccs: number of connected components in the segmentation.
  */
-image<rgb> *segment_image(image<rgb> *im, float sigma, float c, int min_size,
+image<rgb> *segment_image(image<rgb> *im, bool merge, float coalesce_ratio, float sigma, float c, int min_size,
 			  int *num_ccs) {
   int width = im->width();
   int height = im->height();
@@ -110,6 +110,58 @@ image<rgb> *segment_image(image<rgb> *im, float sigma, float c, int min_size,
     if ((a != b) && ((u->size(a) < min_size) || (u->size(b) < min_size)))
       u->join(a, b);
   }
+
+  // merging small components into adjacent large components subject to coalesce_ratio
+  if(merge) {
+    for (int y = 0; y < height; y++){
+      for (int x = 0; x < width; x++){
+        int elem = y * width + x;
+        int surr = -1;
+        int max_size = -1;
+        if(x < width-1){
+          int temp = y * width + (x + 1);
+          int p = u->find(temp);
+          if(max_size < u->size(p)){
+            max_size = u->size(p);
+            surr = temp;
+          }
+        }
+        if(x > 0){
+          int temp = y * width + (x - 1);
+          int p = u->find(temp);
+          if(max_size < u->size(p)){
+            max_size = u->size(p);
+            surr = temp;
+          }
+        }
+        if(y < height-1){
+          int temp = (y + 1) * width + x;
+          int p = u->find(temp);
+          if(max_size < u->size(p)){
+            max_size = u->size(p);
+            surr = temp;
+          }
+        }
+        if(y > 0){
+          int temp = (y - 1) * width + x;
+          int p = u->find(temp);
+          if(max_size < u->size(p)){
+            max_size = u->size(p);
+            surr = temp;
+          }
+        }
+        if(surr == -1)
+          continue;
+        int a = u->find(elem);
+        int b = u->find(surr);
+        if(u->size(a) > u->size(b))
+          swap(a, b);
+        if(a != b && (float) u->size(a) < (float) (u->size(b) * coalesce_ratio))
+          u->join(a, b);
+      }
+    }
+  }
+
   delete [] edges;
   *num_ccs = u->num_sets();
 
