@@ -24,7 +24,7 @@ class pnm_error { };
 
 static void read_packed(unsigned char *data, int size, std::ifstream &f) {
   unsigned char c = 0;
-  
+
   int bitshift = -1;
   for (int pos = 0; pos < size; pos++) {
     if (bitshift == -1) {
@@ -38,7 +38,7 @@ static void read_packed(unsigned char *data, int size, std::ifstream &f) {
 
 static void write_packed(unsigned char *data, int size, std::ofstream &f) {
   unsigned char c = 0;
-  
+
   int bitshift = 7;
   for (int pos = 0; pos < size; pos++) {
       c = c | (data[pos] << bitshift);
@@ -51,18 +51,18 @@ static void write_packed(unsigned char *data, int size, std::ofstream &f) {
   }
 }
 
-/* read PNM field, skipping comments */ 
+/* read PNM field, skipping comments */
 static void pnm_read(std::ifstream &file, char *buf) {
   char doc[BUF_SIZE];
   char c;
-  
+
   file >> c;
   while (c == '#') {
     file.getline(doc, BUF_SIZE);
     file >> c;
   }
   file.putback(c);
-  
+
   file.width(BUF_SIZE);
   file >> buf;
   file.ignore();
@@ -70,23 +70,23 @@ static void pnm_read(std::ifstream &file, char *buf) {
 
 static image<uchar> *loadPBM(const char *name) {
   char buf[BUF_SIZE];
-  
+
   /* read header */
   std::ifstream file(name, std::ios::in | std::ios::binary);
   pnm_read(file, buf);
   if (strncmp(buf, "P4", 2))
     throw pnm_error();
-    
+
   pnm_read(file, buf);
   int width = atoi(buf);
   pnm_read(file, buf);
   int height = atoi(buf);
-  
+
   /* read data */
   image<uchar> *im = new image<uchar>(width, height);
   for (int i = 0; i < height; i++)
     read_packed(imPtr(im, 0, i), width, file);
-  
+
   return im;
 }
 
@@ -102,7 +102,7 @@ static void savePBM(image<uchar> *im, const char *name) {
 
 static image<uchar> *loadPGM(const char *name) {
   char buf[BUF_SIZE];
-  
+
   /* read header */
   std::ifstream file(name, std::ios::in | std::ios::binary);
   pnm_read(file, buf);
@@ -136,7 +136,7 @@ static void savePGM(image<uchar> *im, const char *name) {
 
 static image<rgb> *loadPPM(const char *name) {
   char buf[BUF_SIZE], doc[BUF_SIZE];
-  
+
   /* read header */
   std::ifstream file(name, std::ios::in | std::ios::binary);
   pnm_read(file, buf);
@@ -173,6 +173,22 @@ static image<rgb> *loadOpenCV(const char *name){
     }
   }
   cvReleaseImage(&frame);
+  return im;
+}
+
+static image<rgb> *loadMat(Mat frame){
+  image<rgb> *im = new image<rgb>(frame.cols, frame.rows);
+  for (int i = 0; i < frame.cols; ++i)
+  {
+    for (int j = 0; j < frame.rows; ++j)
+    {
+      rgb* ptr = imPtr(im, i, j);
+      Vec3b color = frame.at<Vec3b>(Point(i,j));
+      ptr->r = color[2];
+      ptr->g = color[1];
+      ptr->b = color[0];
+    }
+  }
   return im;
 }
 
@@ -246,7 +262,7 @@ static void savePPM(image<rgb> *im, const char *name) {
 template <class T>
 void load_image(image<T> **im, const char *name) {
   char buf[BUF_SIZE];
-  
+
   /* read header */
   std::ifstream file(name, std::ios::in | std::ios::binary);
   pnm_read(file, buf);

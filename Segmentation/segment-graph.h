@@ -2,8 +2,11 @@
 #define SEGMENT_GRAPH
 
 #include <algorithm>
+#include <vector>
 #include <cmath>
 #include "disjoint-set.h"
+
+using namespace std;
 
 // threshold function
 #define THRESHOLD(size, c) (c/size)
@@ -27,13 +30,13 @@ bool operator<(const edge &a, const edge &b) {
  * edges: array of edges.
  * c: constant for treshold function.
  */
-universe *segment_graph(int num_vertices, int num_edges, edge *edges, 
-			float c) { 
+universe *segment_graph(int num_vertices, int num_edges, edge *edges,
+			vector<rgb> &colorVect, float c) {
   // sort edges by weight
   std::sort(edges, edges + num_edges);
 
   // make a disjoint-set forest
-  universe *u = new universe(num_vertices);
+  universe *u = new universe(num_vertices, colorVect);
 
   // init thresholds
   float *threshold = new float[num_vertices];
@@ -43,7 +46,7 @@ universe *segment_graph(int num_vertices, int num_edges, edge *edges,
   // for each edge, in non-decreasing weight order...
   for (int i = 0; i < num_edges; i++) {
     edge *pedge = &edges[i];
-    
+
     // components connected by this edge
     int a = u->find(pedge->a);
     int b = u->find(pedge->b);

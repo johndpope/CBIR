@@ -67,7 +67,11 @@ int main(int argc, char **argv) {
 
     printf("processing\n");
     int num_ccs; 
-    image<rgb> *seg = segment_image(input, merge, coalesce_ratio, sigma, k, min_size, &num_ccs); 
+    image<rgb> *seg = segment_image(input, merge, coalesce_ratio, sigma, k, min_size, &num_ccs);
+    cvNamedWindow("in", CV_WINDOW_AUTOSIZE);
+    cvNamedWindow("out", CV_WINDOW_AUTOSIZE);
+    cvMoveWindow("in", 50, 100);
+    cvMoveWindow("out", 100 + input->width(), 100);
     displayOpenCV(input, "in");
     displayOpenCV(seg, "out");
     int ch = cvWaitKey();
