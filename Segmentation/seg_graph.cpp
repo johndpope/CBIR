@@ -66,21 +66,21 @@ int main(int argc, char **argv) {
     image<rgb> *input = loadOpenCV(argv[argc - 1]);
 
     printf("processing\n");
-    int num_ccs; 
+    int num_ccs;
     image<rgb> *seg = segment_image(input, merge, coalesce_ratio, sigma, k, min_size, &num_ccs);
-    cvNamedWindow("in", CV_WINDOW_AUTOSIZE);
-    cvNamedWindow("out", CV_WINDOW_AUTOSIZE);
-    cvMoveWindow("in", 50, 100);
-    cvMoveWindow("out", 100 + input->width(), 100);
-    displayOpenCV(input, "in");
-    displayOpenCV(seg, "out");
-    int ch = cvWaitKey();
-    string str(argv[argc - 1]);
-    str.insert(str.find_last_of("."), "_seg");
-    if(ch == 's' || ch == 'S')
-        saveJPG(seg, str.c_str());
+    // cvNamedWindow("in", CV_WINDOW_AUTOSIZE);
+    // cvNamedWindow("out", CV_WINDOW_AUTOSIZE);
+    // cvMoveWindow("in", 50, 100);
+    // cvMoveWindow("out", 100 + input->width(), 100);
+    // displayOpenCV(input, "in");
+    // displayOpenCV(seg, "out");
+    // int ch = cvWaitKey();
+    // string str(argv[argc - 1]);
+    // str.insert(str.find_last_of("."), "_seg");
+    // if(ch == 's' || ch == 'S')
+        // saveJPG(seg, str.c_str());
 
-    printf("got %d components\n", num_ccs);
+    // printf("got %d components\n", num_ccs);
     return 0;
 }
 
